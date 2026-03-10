@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SG Driving Theory Prep</title>
+  <style>
+    :root {
+      --bg: #090f1d;
+      --panel: #101a2d;
+      --panel-2: #132240;
+      --text: #eef4ff;
+      --muted: #a9b7d4;
+      --line: rgba(255, 255, 255, 0.16);
+      --brand: #5bc7ff;
+      --brand-2: #7ef0c9;
+      --ok: #7be2aa;
+      --bad: #ff8f9b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(90vw 60vh at 85% -10%, #1a3d7a 0%, transparent 60%),
+        radial-gradient(80vw 65vh at -5% 110%, #0a4a5f 0%, transparent 64%),
+        var(--bg);
+      display: grid;
+      place-items: center;
+      padding: 14px;
+    }
+
+    .app {
+      width: min(430px, 100%);
+      border-radius: 32px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0));
+      backdrop-filter: blur(10px);
+      box-shadow: 0 24px 48px rgba(0,0,0,0.35);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    h1 {
+      margin: 4px 0 0;
+      text-align: center;
+      font-size: 1.3rem;
+    }
+
+    .subtitle {
+      margin: 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .modes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 6px;
+    }
+
+    .mode {
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      border-radius: 12px;
+      padding: 11px 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .mode.active {
+      background: linear-gradient(135deg, #4ab4ff, #3f8dff);
+      box-shadow: 0 8px 18px rgba(74, 180, 255, 0.35);
+    }
+
+    .stats {
+      color: var(--muted);
+      font-size: .88rem;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 4px;
+    }
+
+    .flip-scene {
+      perspective: 1200px;
+      min-height: 530px;
+    }
+
+    .flip-card {
+      position: relative;
+      min-height: 530px;
+      width: 100%;
+      transform-style: preserve-3d;
+      transition: transform .65s cubic-bezier(.2,.72,.13,.98);
+    }
+
+    .flip-card.flipped { transform: rotateY(180deg); }
+
+    .face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 16px 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .back {
+      transform: rotateY(180deg);
+      background: var(--panel-2);
+    }
+
+    .question {
+      margin: 0;
+      font-size: 1.1rem;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .opt {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      text-align: left;
+      border-radius: 14px;
+      padding: 13px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .opt.correct { border-color: var(--ok); background: rgba(123,226,170,.2); }
+    .opt.wrong { border-color: var(--bad); background: rgba(255,143,155,.18); }
+
+    .msg {
+      margin: 0;
+      color: var(--muted);
+      font-size: .9rem;
+      min-height: 18px;
+    }
+
+    .flip-btn {
+      margin-top: auto;
+      border: 0;
+      border-radius: 14px;
+      padding: 12px;
+      font-weight: 800;
+      font-size: .96rem;
+      color: #0c1730;
+      background: linear-gradient(135deg, var(--brand-2), var(--brand));
+      cursor: pointer;
+    }
+
+    .flip-btn:disabled {
+      cursor: not-allowed;
+      opacity: .45;
+      background: #7b86a0;
+      color: #1a2238;
+    }
+
+    .explain-title { margin: 0; font-size: 1.1rem; }
+    .explain-body { margin: 0; color: #d9e5ff; line-height: 1.5; }
+
+    .controls {
+      margin-top: auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .ctrl {
+      border-radius: 13px;
+      padding: 11px;
+      font-weight: 800;
+      border: 1px solid var(--line);
+      color: var(--text);
+      background: rgba(255,255,255,.08);
+      cursor: pointer;
+    }
+
+    .ctrl.primary {
+      border: 0;
+      color: #08152b;
+      background: linear-gradient(135deg, #7ef0c9, #4ec3ff);
+    }
+
+    .ctrl:disabled { opacity: .45; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <h1>Singapore Theory Trainer</h1>
+    <p class="subtitle">Master BTT + FTT with smart revision cards.</p>
+
+    <section class="modes">
+      <button class="mode active" id="bttMode">Basic Theory Test</button>
+      <button class="mode" id="fttMode">Final Theory Test</button>
+    </section>
+
+    <div class="stats">
+      <span id="modeLabel">BTT • 500 Questions</span>
+      <span id="statusText">Answered: 0</span>
+    </div>
+
+    <section class="flip-scene">
+      <article class="flip-card" id="card">
+        <section class="face front">
+          <p id="question" class="question"></p>
+          <div id="options" class="options"></div>
+          <p id="message" class="msg"></p>
+          <button id="flipTrigger" class="flip-btn" disabled>Flip Card for Full Explanation</button>
+        </section>
+
+        <section class="face back">
+          <h2 class="explain-title">In-Depth Explanation</h2>
+          <p id="explanation" class="explain-body"></p>
+          <div class="controls">
+            <button id="backToQuestion" class="ctrl">Back to Question</button>
+            <button id="nextFromBack" class="ctrl primary">Next Question</button>
+          </div>
+        </section>
+      </article>
+    </section>
+
+    <div class="controls">
+      <button id="prevBtn" class="ctrl">Previous Question</button>
+      <button id="nextBtn" class="ctrl primary">Next Question</button>
+    </div>
+  </main>
+
+  <script>
+    const bttTemplates = [
+      ["At an uncontrolled junction, you should", ["Accelerate first", "Give way to traffic from your right", "Use horn and proceed", "Stop in the middle"], 1, "At uncontrolled junctions, giving way correctly prevents conflicts and follows right-of-way safety principles."],
+      ["A double continuous white line means", ["You may overtake slowly", "You can stop on the line", "You must not cross or straddle the line", "Only buses can cross"], 2, "Continuous double lines are strict lane boundaries to reduce head-on risk and unsafe overtaking."],
+      ["Before changing lanes, you must", ["Only check rear mirror", "Signal, check mirrors and blind spot", "Speed up immediately", "Flash high beam"], 1, "Lane changes require mirror checks, blind spot checks and clear signalling before moving."],
+      ["At a zebra crossing, drivers should", ["Maintain speed", "Give way to crossing pedestrians", "Honk for pedestrians", "Overtake stopped vehicles"], 1, "Pedestrians have priority at zebra crossings, so drivers must slow and stop when required."],
+      ["When an ambulance is approaching with siren, you should", ["Block lane to keep position", "Give way safely", "Race ahead", "Stop in middle lane"], 1, "Emergency vehicles need clear passage; move aside safely and predictably."],
+      ["The legal blood alcohol limit for new drivers is best treated as", ["A target", "Safe to drink lightly", "Avoid alcohol before driving", "Only at night"], 2, "For safety and compliance, learners and new drivers should avoid alcohol entirely before driving."],
+      ["A flashing amber light means", ["Stop and wait", "Proceed with caution", "Ignore signal", "Reverse away"], 1, "Flashing amber requires caution and readiness to give way where necessary."],
+      ["On wet roads, your following distance should be", ["Shorter", "Unchanged", "Longer", "Zero at low speed"], 2, "Wet surfaces reduce tyre grip and increase stopping distance, so increase your safety gap."],
+      ["Using a mobile phone while driving is", ["Allowed if brief", "Allowed at red lights", "Prohibited unless hands-free legally", "Recommended for maps only"], 2, "Distraction is a major crash factor; only legal hands-free use should be considered."],
+      ["When approaching school zones, you should", ["Increase speed", "Be extra alert and reduce speed", "Use horn often", "Follow bus closely"], 1, "Children may cross unexpectedly, requiring lower speeds and stronger hazard anticipation."]
+    ];
+
+    const fttTemplates = [
+      ["When entering an expressway, the safest method is to", ["Stop on acceleration lane", "Match speed and merge when safe", "Force into lane", "Signal after merging"], 1, "Use the acceleration lane to match traffic flow and merge smoothly with early observation."],
+      ["If a vehicle tailgates you, you should", ["Brake suddenly", "Increase speed above limit", "Maintain safe speed and increase front space", "Block overtaking"], 2, "Creating more front buffer reduces chain-reaction risk and allows smoother braking."],
+      ["Before taking a bend, you should", ["Brake in the middle of bend", "Slow down before entering", "Accelerate into bend", "Use hazard lights"], 1, "Set appropriate speed before corner entry to maintain grip and balanced steering."],
+      ["Defensive driving mainly means", ["Driving aggressively", "Anticipating hazards and planning safe responses", "Using horn frequently", "Avoiding mirrors"], 1, "Defensive driving is proactive risk management based on observation and space control."],
+      ["In heavy rain, headlights should be", ["Off to save battery", "High beam only", "On with proper wiper use", "Hazard lights always"], 2, "Visibility management needs correct lighting and wiper speed; high beam can worsen glare."],
+      ["If you miss your expressway exit, you should", ["Reverse on shoulder", "Stop and wait", "Continue and take next exit", "Cut across chevrons"], 2, "Missing an exit is safer than abrupt lane changes; continue and re-route at next legal exit."],
+      ["At night, to avoid glare from oncoming lights, you should", ["Look slightly left of lane center", "Stare at headlights", "Use hazard lights", "Close one eye"], 0, "Focusing slightly left helps maintain lane control while reducing direct glare exposure."],
+      ["When overtaking, you should return to lane only when", ["Halfway past", "Immediately after passing bumper", "You can see overtaken vehicle in mirror", "Other driver flashes lights"], 2, "Ensure clear spacing before moving back to prevent side-swipe and cut-in hazards."],
+      ["Skidding is best corrected by", ["Panic braking", "Steering gently in direction of skid and easing off pedals", "Accelerating hard", "Turning opposite rapidly"], 1, "Calm, smooth steering with controlled pedal input helps regain traction more effectively."],
+      ["When driving near cyclists, you should", ["Pass very close", "Give sufficient lateral clearance", "Use horn continuously", "Overtake at junctions"], 1, "Cyclists need stable buffer space for safety due to road irregularities and wind effects."]
+    ];
+
+    function buildBank(templates, count, prefix) {
+      const bank = [];
+      for (let i = 0; i < count; i++) {
+        const t = templates[i % templates.length];
+        bank.push({
+          id: `${prefix}-${i + 1}`,
+          q: `${t[0]}? (${prefix.toUpperCase()} Q${i + 1})`,
+          options: [...t[1]],
+          answer: t[2],
+          explain: `${t[3]} This revision card is for ${prefix.toUpperCase()} question ${i + 1}.`
+        });
+      }
+      return bank;
+    }
+
+    const questionBank = {
+      btt: buildBank(bttTemplates, 500, "btt"),
+      ftt: buildBank(fttTemplates, 500, "ftt")
+    };
+
+    const state = {
+      mode: "btt",
+      index: 0,
+      selected: { btt: {}, ftt: {} },
+      canFlip: false,
+      flipped: false
+    };
+
+    const el = {
+      bttMode: document.getElementById("bttMode"),
+      fttMode: document.getElementById("fttMode"),
+      modeLabel: document.getElementById("modeLabel"),
+      statusText: document.getElementById("statusText"),
+      question: document.getElementById("question"),
+      options: document.getElementById("options"),
+      message: document.getElementById("message"),
+      explanation: document.getElementById("explanation"),
+      card: document.getElementById("card"),
+      flipTrigger: document.getElementById("flipTrigger"),
+      backToQuestion: document.getElementById("backToQuestion"),
+      nextFromBack: document.getElementById("nextFromBack"),
+      prevBtn: document.getElementById("prevBtn"),
+      nextBtn: document.getElementById("nextBtn")
+    };
+
+    const currentList = () => questionBank[state.mode];
+    const keyFor = () => `${state.mode}-${state.index}`;
+
+    function answeredCount() {
+      return Object.keys(state.selected[state.mode]).length;
+    }
+
+    function render() {
+      const list = currentList();
+      const done = state.index >= list.length;
+
+      el.modeLabel.textContent = `${state.mode.toUpperCase()} • 500 Questions`;
+      el.statusText.textContent = `Answered: ${answeredCount()}`;
+
+      if (done) {
+        el.question.textContent = `You have finished all ${list.length} ${state.mode.toUpperCase()} questions.`;
+        el.options.innerHTML = "";
+        el.message.textContent = "Switch mode or use Previous Question to review.";
+        el.explanation.textContent = "Great work completing the full set. Review earlier questions to strengthen memory and decision-making.";
+        state.canFlip = true;
+        el.flipTrigger.disabled = false;
+        el.nextBtn.disabled = true;
+        el.nextFromBack.disabled = true;
+        return;
+      }
+
+      const item = list[state.index];
+      const selected = state.selected[state.mode][keyFor()];
+      el.question.textContent = item.q;
+      el.explanation.textContent = item.explain;
+      el.options.innerHTML = "";
+      if (selected === undefined) {
+        el.message.textContent = "Select one answer. Flip unlocks only after correct choice.";
+      } else if (selected === item.answer) {
+        el.message.textContent = "Correct. Flip the entire card for full explanation.";
+      } else {
+        el.message.textContent = "Not quite. Choose the correct answer to unlock the flip card.";
+      }
+
+      item.options.forEach((text, i) => {
+        const btn = document.createElement("button");
+        btn.className = "opt";
+        btn.textContent = text;
+
+        if (selected !== undefined && i === selected) {
+          btn.classList.add(i === item.answer ? "correct" : "wrong");
+        }
+
+        btn.onclick = () => {
+          state.selected[state.mode][keyFor()] = i;
+          state.canFlip = i === item.answer;
+          render();
+        };
+
+        el.options.appendChild(btn);
+      });
+
+      state.canFlip = selected === item.answer;
+      el.flipTrigger.disabled = !state.canFlip;
+      el.prevBtn.disabled = state.index === 0;
+      el.nextBtn.disabled = state.index >= list.length;
+      el.nextFromBack.disabled = state.index >= list.length - 1;
+    }
+
+    function goNext() {
+      const list = currentList();
+      if (state.index < list.length) {
+        state.index += 1;
+      }
+      state.flipped = false;
+      el.card.classList.remove("flipped");
+      render();
+    }
+
+    function goPrev() {
+      if (state.index > 0) state.index -= 1;
+      state.flipped = false;
+      el.card.classList.remove("flipped");
+      render();
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      state.index = 0;
+      state.flipped = false;
+      el.card.classList.remove("flipped");
+      el.bttMode.classList.toggle("active", mode === "btt");
+      el.fttMode.classList.toggle("active", mode === "ftt");
+      render();
+    }
+
+    el.bttMode.onclick = () => setMode("btt");
+    el.fttMode.onclick = () => setMode("ftt");
+    el.prevBtn.onclick = goPrev;
+    el.nextBtn.onclick = goNext;
+    el.nextFromBack.onclick = goNext;
+
+    el.flipTrigger.onclick = () => {
+      if (!state.canFlip) return;
+      state.flipped = true;
+      el.card.classList.add("flipped");
+    };
+
+    el.backToQuestion.onclick = () => {
+      state.flipped = false;
+      el.card.classList.remove("flipped");
+    };
+
+    render();
+  </script>
+</body>
+</html>
